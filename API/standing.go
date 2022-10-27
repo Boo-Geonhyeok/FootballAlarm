@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,8 +12,9 @@ import (
 	models "github.com/Boo-Geonhyeok/football-alarm/Models"
 )
 
-func getFIxturesByLeague(leagueID int) {
-	url := "https://v3.football.api-sports.io/fixtures?league=39&timezone=Asia%2FSeoul&season=2022"
+func GetStanding(leagueID int) {
+	ID := fmt.Sprint(leagueID)
+	url := "https://v3.football.api-sports.io/standings?league=" + ID + "&season=2022"
 	method := "GET"
 
 	client := &http.Client{}
@@ -37,33 +39,26 @@ func getFIxturesByLeague(leagueID int) {
 		return
 	}
 
-	fixtureAPI := &models.FixtureAPI{}
-	err = json.Unmarshal(body, fixtureAPI)
+	standingAPI := &models.StandingAPI{}
+	err = json.Unmarshal(body, standingAPI)
 	if err != nil {
 		log.Fatal("Can't Unmarshal a body: ", err)
 		return
 	}
 
-	for _, f := range fixtureAPI.Response {
-		fixture := models.Fixture{
-			ID:       f.Fixture.ID,
-			Date:     f.Fixture.Date,
-			League:   f.League.Name,
-			HomeID:   f.Teams.Home.ID,
-			HomeName: f.Teams.Home.Name,
-			AwayID:   f.Teams.Away.ID,
-			AwayName: f.Teams.Away.Name,
-			HomeGoal: f.Goals.Home,
-			AwayGoal: f.Goals.Away,
+	for _, s := range standingAPI.Response[0].League.Standings[0] {
+		standing := models.Standing{
+			Rank:      s.Rank,
+			TeamID:    s.Team.ID,
+			Team:      s.Team.Name,
+			Points:    s.Points,
+			GoalsDiff: s.GoalsDiff,
+			Played:    s.All.Played,
+			Win:       s.All.Win,
+			Draw:      s.All.Draw,
+			Lose:      s.All.Played,
 		}
 
-		database.DB.Create(&fixture)
-	}
-}
-
-func GetAllFixtures() {
-	leagueIDs := []int{1, 39, 140, 78, 135, 61, 2}
-	for _, leagueID := range leagueIDs {
-		getFIxturesByLeague(leagueID)
+		database.DB.Create(&standing)
 	}
 }

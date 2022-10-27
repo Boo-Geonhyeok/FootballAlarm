@@ -31,4 +31,5 @@ func InitDB() {
 
 	DB.AutoMigrate(&models.Fixture{})
 	DB.AutoMigrate(&models.Prediction{})
+	DB.AutoMigrate(&models.Standing{})
 }

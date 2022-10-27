@@ -91,17 +91,13 @@ type FixtureAPI struct {
 
 type Fixture struct {
 	gorm.Model
-	ID     int
-	Date   time.Time
-	League string
-	Home   struct {
-		ID   int
-		Name string
-	}
-	Away struct {
-		ID   int
-		Name string
-	}
+	ID       int
+	Date     time.Time
+	League   string
+	HomeID   int
+	HomeName string
+	AwayID   int
+	AwayName string
 	HomeGoal int
 	AwayGoal int
 }
